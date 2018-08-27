@@ -1,6 +1,6 @@
 package com.synopsys.integration.buildfileparser;
 
-import java.util.Optional;
+import com.synopsys.integration.buildfileparser.exception.BuildFileContextNotFoundException;
 
 public enum BuildFileContext {
     GRADLE,
@@ -8,18 +8,18 @@ public enum BuildFileContext {
     NPM,
     RUBYGEMS;
 
-    public static Optional<BuildFileContext> determineContextFromFilename(final String filename) {
+    public static BuildFileContext determineContextFromFilename(final String filename) throws BuildFileContextNotFoundException {
         if ("build.gradle".equalsIgnoreCase(filename)) {
-            return Optional.of(GRADLE);
+            return GRADLE;
         } else if ("pom.xml".equalsIgnoreCase(filename)) {
-            return Optional.of(MAVEN);
+            return MAVEN;
         } else if ("package-lock.json".equalsIgnoreCase(filename)) {
-            return Optional.of(NPM);
+            return NPM;
         } else if ("Gemfile.lock".equalsIgnoreCase(filename)) {
-            return Optional.of(RUBYGEMS);
+            return RUBYGEMS;
         }
 
-        return null;
+        throw new BuildFileContextNotFoundException(filename);
     }
 
 }
