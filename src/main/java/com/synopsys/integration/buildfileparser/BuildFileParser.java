@@ -1,5 +1,5 @@
 /**
- * hub-common
+ * build-file-parser
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
