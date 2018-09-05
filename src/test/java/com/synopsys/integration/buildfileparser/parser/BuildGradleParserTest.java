@@ -12,7 +12,7 @@ import com.synopsys.integration.hub.bdio.model.externalid.ExternalIdFactory;
 public class BuildGradleParserTest {
     @Test
     public void testGettingGraphFromSimpleBuildGradle() {
-        final InputStream buildGradleInputStream = getClass().getResourceAsStream("/simple_build.gradle");
+        final InputStream buildGradleInputStream = getClass().getResourceAsStream("/simple_build.gradle.txt");
 
         final BuildGradleParser buildGradleParser = new BuildGradleParser(new ExternalIdFactory());
         final DependencyGraph dependencyGraph = buildGradleParser.parse(buildGradleInputStream);

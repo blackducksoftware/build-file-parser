@@ -36,6 +36,7 @@ import org.codehaus.groovy.ast.expr.Expression;
 import org.codehaus.groovy.ast.expr.MapEntryExpression;
 import org.codehaus.groovy.ast.expr.MapExpression;
 import org.codehaus.groovy.ast.expr.MethodCallExpression;
+import org.codehaus.groovy.ast.expr.TupleExpression;
 import org.codehaus.groovy.ast.stmt.BlockStatement;
 import org.codehaus.groovy.ast.stmt.ExpressionStatement;
 import org.codehaus.groovy.ast.stmt.ReturnStatement;
@@ -85,13 +86,14 @@ public class DependenciesVisitor extends CodeVisitorSupport {
                         addDependencyFromStatement(statement);
                     }
                 }
-            } else if (expressions.size() == 1 && expressions.get(0) instanceof ConstantExpression) {
-                final ConstantExpression constantExpression = (ConstantExpression) expressions.get(0);
-                addDependencyFromConstantExpression(constantExpression);
             }
         }
 
         super.visitArgumentlistExpression(argumentListExpression);
+    }
+
+    public List<Dependency> getDependencies() {
+        return dependencies;
     }
 
     private void addDependencyFromStatement(final Statement statement) {
@@ -118,45 +120,34 @@ public class DependenciesVisitor extends CodeVisitorSupport {
                     final ConstantExpression methodConstantExpression = (ConstantExpression) methodExpressions.get(0);
                     addDependencyFromConstantExpression(methodConstantExpression);
                 }
-            }
-        }
-    }
-
-    @Override
-    public void visitMapExpression(final MapExpression mapExpression) {
-        if (inDependenciesBlock) {
-            final List<MapEntryExpression> mapEntryExpressions = mapExpression.getMapEntryExpressions();
-
-            String group = null;
-            String name = null;
-            String version = null;
-            for (final MapEntryExpression mapEntryExpression : mapEntryExpressions) {
-                final String key = mapEntryExpression.getKeyExpression().getText();
-                final String value = mapEntryExpression.getValueExpression().getText();
-                if ("group".equals(key)) {
-                    group = value;
-                } else if ("name".equals(key)) {
-                    name = value;
-                } else if ("version".equals(key)) {
-                    version = value;
+            } else if (argumentsExpression instanceof TupleExpression) {
+                final TupleExpression tupleExpression = (TupleExpression) argumentsExpression;
+                if (tupleExpression.getExpressions().size() == 1 && tupleExpression.getExpression(0) instanceof MapExpression) {
+                    addDependencyFromMapExpression((MapExpression) tupleExpression.getExpression(0));
                 }
             }
+        }
+    }
 
-            addDependency(group, name, version);
+    private void addDependencyFromMapExpression(final MapExpression mapExpression) {
+        final List<MapEntryExpression> mapEntryExpressions = mapExpression.getMapEntryExpressions();
+
+        String group = null;
+        String name = null;
+        String version = null;
+        for (final MapEntryExpression mapEntryExpression : mapEntryExpressions) {
+            final String key = mapEntryExpression.getKeyExpression().getText();
+            final String value = mapEntryExpression.getValueExpression().getText();
+            if ("group".equals(key)) {
+                group = value;
+            } else if ("name".equals(key)) {
+                name = value;
+            } else if ("version".equals(key)) {
+                version = value;
+            }
         }
 
-        super.visitMapExpression(mapExpression);
-    }
-
-    public List<Dependency> getDependencies() {
-        return dependencies;
-    }
-
-    private void addDependency(final String group, final String name, final String version) {
-        final ExternalId externalId = externalIdFactory.createMavenExternalId(group, name, version);
-        final Dependency dependency = new Dependency(name, version, externalId);
-        dependencies.add(dependency);
-        System.out.println(dependency.externalId.createExternalId());
+        addDependency(group, name, version);
     }
 
     private void addDependencyFromConstantExpression(final ConstantExpression constantExpression) {
@@ -169,6 +160,12 @@ public class DependenciesVisitor extends CodeVisitorSupport {
             final String version = pieces[2];
             addDependency(group, name, version);
         }
+    }
+
+    private void addDependency(final String group, final String name, final String version) {
+        final ExternalId externalId = externalIdFactory.createMavenExternalId(group, name, version);
+        final Dependency dependency = new Dependency(name, version, externalId);
+        dependencies.add(dependency);
     }
 
 }
