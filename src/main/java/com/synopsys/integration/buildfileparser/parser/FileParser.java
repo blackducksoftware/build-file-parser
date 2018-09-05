@@ -25,7 +25,7 @@ package com.synopsys.integration.buildfileparser.parser;
 
 import java.io.InputStream;
 
-import com.synopsys.integration.hub.bdio.graph.DependencyGraph;
+import com.synopsys.integration.buildfileparser.ParseResult;
 import com.synopsys.integration.hub.bdio.model.externalid.ExternalIdFactory;
 
 public abstract class FileParser {
@@ -35,6 +35,6 @@ public abstract class FileParser {
         this.externalIdFactory = externalIdFactory;
     }
 
-    public abstract DependencyGraph parse(InputStream inputStream);
+    public abstract ParseResult parse(InputStream inputStream);
 
 }

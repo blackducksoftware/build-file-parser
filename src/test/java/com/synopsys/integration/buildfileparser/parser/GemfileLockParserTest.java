@@ -27,7 +27,7 @@ public class GemfileLockParserTest {
 
         final GemfileLockParser gemfileLockParser = new GemfileLockParser(new ExternalIdFactory());
 
-        final DependencyGraph dependencyGraph = gemfileLockParser.parse(getClass().getResourceAsStream("/small_gemfile_lock"));
+        final DependencyGraph dependencyGraph = gemfileLockParser.parse(getClass().getResourceAsStream("/small_gemfile_lock")).getDependencyGraph();
         final GraphSummary actual = dependencyGraphSummarizer.fromGraph(dependencyGraph);
 
         assertTrue(dependencyGraphComparer.areEqual(expected, actual));
@@ -40,7 +40,7 @@ public class GemfileLockParserTest {
 
         final GemfileLockParser gemfileLockParser = new GemfileLockParser(new ExternalIdFactory());
 
-        final DependencyGraph dependencyGraph = gemfileLockParser.parse(getClass().getResourceAsStream("/Gemfile.lock"));
+        final DependencyGraph dependencyGraph = gemfileLockParser.parse(getClass().getResourceAsStream("/Gemfile.lock")).getDependencyGraph();
         final GraphSummary actual = dependencyGraphSummarizer.fromGraph(dependencyGraph);
 
         assertTrue(dependencyGraphComparer.areEqual(expected, actual));

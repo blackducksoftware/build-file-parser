@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
+import com.synopsys.integration.buildfileparser.ParseResult;
 import com.synopsys.integration.buildfileparser.parser.FileParser;
 import com.synopsys.integration.hub.bdio.graph.DependencyGraph;
 import com.synopsys.integration.hub.bdio.graph.builder.LazyExternalIdDependencyGraphBuilder;
@@ -42,6 +43,7 @@ import com.synopsys.integration.hub.bdio.model.dependencyid.NameDependencyId;
 import com.synopsys.integration.hub.bdio.model.dependencyid.NameVersionDependencyId;
 import com.synopsys.integration.hub.bdio.model.externalid.ExternalId;
 import com.synopsys.integration.hub.bdio.model.externalid.ExternalIdFactory;
+import com.synopsys.integration.util.NameVersion;
 
 public class PackageLockJsonParser extends FileParser {
     private final Logger logger = LoggerFactory.getLogger(PackageLockJsonParser.class);
@@ -56,7 +58,7 @@ public class PackageLockJsonParser extends FileParser {
     }
 
     @Override
-    public DependencyGraph parse(final InputStream inputStream) {
+    public ParseResult parse(final InputStream inputStream) {
         final LazyExternalIdDependencyGraphBuilder lazyBuilder = new LazyExternalIdDependencyGraphBuilder();
 
         try {
@@ -83,11 +85,15 @@ public class PackageLockJsonParser extends FileParser {
                 logger.info("Lock file did not have a 'dependencies' section.");
             }
             logger.info("Finished processing.");
+
+            final NameVersion nameVersion = new NameVersion(npmProject.name, npmProject.version);
+            final DependencyGraph dependencyGraph = lazyBuilder.build();
+            return ParseResult.success(nameVersion, dependencyGraph);
         } catch (final IOException e) {
             logger.error("Could not get the gemfile contents: " + e.getMessage());
         }
 
-        return lazyBuilder.build();
+        return ParseResult.failure();
     }
 
     private boolean shouldInclude(final NpmDependency npmDependency, final boolean includeDevDependencies) {

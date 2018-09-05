@@ -35,6 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.synopsys.integration.buildfileparser.ParseResult;
 import com.synopsys.integration.buildfileparser.parser.FileParser;
 import com.synopsys.integration.hub.bdio.graph.DependencyGraph;
 import com.synopsys.integration.hub.bdio.graph.builder.LazyExternalIdDependencyGraphBuilder;
@@ -70,7 +71,7 @@ public class GemfileLockParser extends FileParser {
     }
 
     @Override
-    public DependencyGraph parse(final InputStream inputStream) {
+    public ParseResult parse(final InputStream inputStream) {
         lazyBuilder = new LazyExternalIdDependencyGraphBuilder();
         currentParent = null;
 
@@ -97,11 +98,14 @@ public class GemfileLockParser extends FileParser {
                     parseDependencySectionLine(trimmedLine);
                 }
             }
+
+            final DependencyGraph dependencyGraph = lazyBuilder.build();
+            return ParseResult.success(dependencyGraph);
         } catch (final IOException e) {
             logger.error("Could not get the gemfile contents: " + e.getMessage());
         }
 
-        return lazyBuilder.build();
+        return ParseResult.failure();
     }
 
     private void addBundlerDependency(final String trimmedLine) {

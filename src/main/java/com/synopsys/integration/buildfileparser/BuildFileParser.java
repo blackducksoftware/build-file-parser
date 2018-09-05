@@ -27,15 +27,14 @@ import java.io.File;
 import java.io.InputStream;
 
 import com.synopsys.integration.buildfileparser.exception.BuildFileContextNotFoundException;
-import com.synopsys.integration.hub.bdio.graph.DependencyGraph;
 
 public class BuildFileParser {
-    public DependencyGraph parseInputStream(final InputStream inputStream, final BuildFileContext buildFileContext) {
+    public ParseResult parseInputStream(final InputStream inputStream, final BuildFileContext buildFileContext) {
         // TODO
         return null;
     }
 
-    public DependencyGraph parseFile(final File file) throws BuildFileContextNotFoundException {
+    public ParseResult parseFile(final File file) throws BuildFileContextNotFoundException {
         final BuildFileContext buildFileContext = BuildFileContext.determineContextFromFilename(file.getName());
 
         // TODO

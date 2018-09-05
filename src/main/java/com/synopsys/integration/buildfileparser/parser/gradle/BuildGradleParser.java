@@ -34,8 +34,8 @@ import org.codehaus.groovy.ast.builder.AstBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.synopsys.integration.buildfileparser.ParseResult;
 import com.synopsys.integration.buildfileparser.parser.FileParser;
-import com.synopsys.integration.hub.bdio.graph.DependencyGraph;
 import com.synopsys.integration.hub.bdio.graph.MutableDependencyGraph;
 import com.synopsys.integration.hub.bdio.graph.MutableMapDependencyGraph;
 import com.synopsys.integration.hub.bdio.model.dependency.Dependency;
@@ -49,7 +49,7 @@ public class BuildGradleParser extends FileParser {
     }
 
     @Override
-    public DependencyGraph parse(final InputStream inputStream) {
+    public ParseResult parse(final InputStream inputStream) {
         final MutableDependencyGraph dependencyGraph = new MutableMapDependencyGraph();
 
         try {
@@ -64,11 +64,13 @@ public class BuildGradleParser extends FileParser {
 
             final List<Dependency> dependencies = dependenciesVisitor.getDependencies();
             dependencyGraph.addChildrenToRoot(dependencies);
+
+            return ParseResult.success(dependencyGraph);
         } catch (final IOException e) {
             logger.error("Could not get the build file contents: " + e.getMessage());
         }
 
-        return dependencyGraph;
+        return ParseResult.failure();
     }
 
 }

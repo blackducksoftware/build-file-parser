@@ -35,8 +35,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
+import com.synopsys.integration.buildfileparser.ParseResult;
 import com.synopsys.integration.buildfileparser.parser.FileParser;
-import com.synopsys.integration.hub.bdio.graph.DependencyGraph;
 import com.synopsys.integration.hub.bdio.graph.MutableDependencyGraph;
 import com.synopsys.integration.hub.bdio.graph.MutableMapDependencyGraph;
 import com.synopsys.integration.hub.bdio.model.dependency.Dependency;
@@ -55,7 +55,7 @@ public class PomXmlParser extends FileParser {
     }
 
     @Override
-    public DependencyGraph parse(final InputStream inputStream) {
+    public ParseResult parse(final InputStream inputStream) {
         final MutableDependencyGraph dependencyGraph = new MutableMapDependencyGraph();
 
         try {
@@ -63,11 +63,13 @@ public class PomXmlParser extends FileParser {
             final List<Dependency> dependencies = pomDependenciesHandler.getDependencies();
 
             dependencyGraph.addChildrenToRoot(dependencies);
+
+            return ParseResult.success(dependencyGraph);
         } catch (IOException | SAXException e) {
             logger.error("Could not parse the pom file: " + e.getMessage());
         }
 
-        return dependencyGraph;
+        return ParseResult.failure();
     }
 
 }

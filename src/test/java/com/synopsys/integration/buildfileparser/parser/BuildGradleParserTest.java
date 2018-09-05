@@ -16,7 +16,7 @@ public class BuildGradleParserTest {
         final InputStream buildGradleInputStream = getClass().getResourceAsStream("/simple_build.gradle.txt");
 
         final BuildGradleParser buildGradleParser = new BuildGradleParser(new ExternalIdFactory());
-        final DependencyGraph dependencyGraph = buildGradleParser.parse(buildGradleInputStream);
+        final DependencyGraph dependencyGraph = buildGradleParser.parse(buildGradleInputStream).getDependencyGraph();
 
         assertEquals(9, dependencyGraph.getRootDependencies().size());
     }

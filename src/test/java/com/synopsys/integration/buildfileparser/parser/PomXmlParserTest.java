@@ -15,7 +15,7 @@ public class PomXmlParserTest {
     public void testParsingPomFile() throws Exception {
         final InputStream pomInputStream = getClass().getResourceAsStream("/hub-teamcity-pom.xml");
         final PomXmlParser pomXmlParser = new PomXmlParser(new ExternalIdFactory());
-        final DependencyGraph dependencyGraph = pomXmlParser.parse(pomInputStream);
+        final DependencyGraph dependencyGraph = pomXmlParser.parse(pomInputStream).getDependencyGraph();
         assertTrue(dependencyGraph.getRootDependencies().size() > 0);
     }
 
