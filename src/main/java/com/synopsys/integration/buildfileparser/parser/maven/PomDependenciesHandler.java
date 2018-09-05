@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.synopsys.integration.buildfileparser.parser;
+package com.synopsys.integration.buildfileparser.parser.maven;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,13 +58,13 @@ public class PomDependenciesHandler extends DefaultHandler {
         super.startElement(uri, localName, qName, attributes);
         if ("dependencies".equals(qName)) {
             parsingDependencies = true;
-        } else if ("dependency".equals(qName)) {
+        } else if (parsingDependencies && "dependency".equals(qName)) {
             parsingDependency = true;
-        } else if ("groupId".equals(qName)) {
+        } else if (parsingDependency && "groupId".equals(qName)) {
             parsingGroup();
-        } else if ("artifactId".equals(qName)) {
+        } else if (parsingDependency && "artifactId".equals(qName)) {
             parsingArtifact();
-        } else if ("version".equals(qName)) {
+        } else if (parsingDependency && "version".equals(qName)) {
             parsingVersion();
         }
     }

@@ -21,30 +21,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.synopsys.integration.buildfileparser.parser;
+package com.synopsys.integration.buildfileparser.parser.maven;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
-import org.codehaus.groovy.ast.ASTNode;
-import org.codehaus.groovy.ast.builder.AstBuilder;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
+import com.synopsys.integration.buildfileparser.parser.FileParser;
 import com.synopsys.integration.hub.bdio.graph.DependencyGraph;
 import com.synopsys.integration.hub.bdio.graph.MutableDependencyGraph;
 import com.synopsys.integration.hub.bdio.graph.MutableMapDependencyGraph;
 import com.synopsys.integration.hub.bdio.model.dependency.Dependency;
 import com.synopsys.integration.hub.bdio.model.externalid.ExternalIdFactory;
 
-public class BuildGradleParser extends FileParser {
-    private final Logger logger = LoggerFactory.getLogger(BuildGradleParser.class);
+public class PomXmlParser extends FileParser {
+    private final Logger logger = LoggerFactory.getLogger(PomXmlParser.class);
 
-    public BuildGradleParser(final ExternalIdFactory externalIdFactory) {
+    private final SAXParser saxParser;
+    private final PomDependenciesHandler pomDependenciesHandler;
+
+    public PomXmlParser(final ExternalIdFactory externalIdFactory) throws ParserConfigurationException, SAXException {
         super(externalIdFactory);
+        saxParser = SAXParserFactory.newInstance().newSAXParser();
+        pomDependenciesHandler = new PomDependenciesHandler(externalIdFactory);
     }
 
     @Override
@@ -52,19 +59,12 @@ public class BuildGradleParser extends FileParser {
         final MutableDependencyGraph dependencyGraph = new MutableMapDependencyGraph();
 
         try {
-            final String sourceContents = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-            final AstBuilder astBuilder = new AstBuilder();
-            final List<ASTNode> nodes = astBuilder.buildFromString(sourceContents);
+            saxParser.parse(inputStream, pomDependenciesHandler);
+            final List<Dependency> dependencies = pomDependenciesHandler.getDependencies();
 
-            final DependenciesVisitor dependenciesVisitor = new DependenciesVisitor(externalIdFactory);
-            for (final ASTNode node : nodes) {
-                node.visit(dependenciesVisitor);
-            }
-
-            final List<Dependency> dependencies = dependenciesVisitor.getDependencies();
             dependencyGraph.addChildrenToRoot(dependencies);
-        } catch (final IOException e) {
-            logger.error("Could not get the build file contents: " + e.getMessage());
+        } catch (IOException | SAXException e) {
+            logger.error("Could not parse the pom file: " + e.getMessage());
         }
 
         return dependencyGraph;

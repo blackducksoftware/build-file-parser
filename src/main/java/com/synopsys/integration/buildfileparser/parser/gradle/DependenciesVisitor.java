@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.synopsys.integration.buildfileparser.parser;
+package com.synopsys.integration.buildfileparser.parser.gradle;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

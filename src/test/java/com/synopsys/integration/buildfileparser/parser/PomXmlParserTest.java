@@ -6,6 +6,7 @@ import java.io.InputStream;
 
 import org.junit.Test;
 
+import com.synopsys.integration.buildfileparser.parser.maven.PomXmlParser;
 import com.synopsys.integration.hub.bdio.graph.DependencyGraph;
 import com.synopsys.integration.hub.bdio.model.externalid.ExternalIdFactory;
 

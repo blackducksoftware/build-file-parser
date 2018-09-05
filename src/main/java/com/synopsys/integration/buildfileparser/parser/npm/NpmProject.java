@@ -21,7 +21,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.synopsys.integration.buildfileparser.parser;
+package com.synopsys.integration.buildfileparser.parser.npm;
 
-public class PackageLockJsonParser {
+import java.util.Map;
+
+import com.google.gson.annotations.SerializedName;
+
+public class NpmProject {
+    @SerializedName("name")
+    public String name;
+
+    @SerializedName("version")
+    public String version;
+
+    @SerializedName("dependencies")
+    public Map<String, NpmDependency> dependencies;
 }

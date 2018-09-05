@@ -9,6 +9,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import com.google.gson.Gson;
+import com.synopsys.integration.buildfileparser.parser.rubygems.GemfileLockParser;
 import com.synopsys.integration.hub.bdio.graph.DependencyGraph;
 import com.synopsys.integration.hub.bdio.graph.summary.DependencyGraphComparer;
 import com.synopsys.integration.hub.bdio.graph.summary.DependencyGraphSummarizer;

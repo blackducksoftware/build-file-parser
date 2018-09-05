@@ -21,20 +21,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.synopsys.integration.buildfileparser.parser;
+package com.synopsys.integration.buildfileparser.parser.npm;
 
-import java.io.InputStream;
+import java.util.Map;
 
-import com.synopsys.integration.hub.bdio.graph.DependencyGraph;
-import com.synopsys.integration.hub.bdio.model.externalid.ExternalIdFactory;
+import com.google.gson.annotations.SerializedName;
 
-public abstract class FileParser {
-    protected final ExternalIdFactory externalIdFactory;
+public class NpmDependency {
+    @SerializedName("version")
+    public String version;
 
-    public FileParser(final ExternalIdFactory externalIdFactory) {
-        this.externalIdFactory = externalIdFactory;
-    }
+    @SerializedName("dev")
+    public Boolean dev;
 
-    public abstract DependencyGraph parse(InputStream inputStream);
-
+    @SerializedName("requires")
+    public Map<String, String> requires;
 }

@@ -21,9 +21,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.synopsys.integration.buildfileparser.parser;
+package com.synopsys.integration.buildfileparser.parser.rubygems;
 
-import static com.synopsys.integration.buildfileparser.parser.GemfileLockParser.GemfileLockSection.*;
+import static com.synopsys.integration.buildfileparser.parser.rubygems.GemfileLockParser.GemfileLockSection.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.synopsys.integration.buildfileparser.parser.FileParser;
 import com.synopsys.integration.hub.bdio.graph.DependencyGraph;
 import com.synopsys.integration.hub.bdio.graph.builder.LazyExternalIdDependencyGraphBuilder;
 import com.synopsys.integration.hub.bdio.model.Forge;
