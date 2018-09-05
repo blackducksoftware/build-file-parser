@@ -25,10 +25,12 @@ package com.synopsys.integration.buildfileparser.parser;
 
 import static com.synopsys.integration.buildfileparser.parser.GemfileLockParser.GemfileLockSection.*;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,11 +45,6 @@ import com.synopsys.integration.hub.bdio.model.externalid.ExternalIdFactory;
 import com.synopsys.integration.util.NameVersion;
 
 public class GemfileLockParser extends FileParser {
-    @Override
-    public DependencyGraph parse(final InputStream inputStream) {
-        return null;
-    }
-
     public static final String DEPENDENCIES_HEADER = "DEPENDENCIES";
     public static final String BUNDLED_WITH_HEADER = "BUNDLED WITH";
     public static final String SPECS_HEADER = "specs:";
@@ -71,28 +68,36 @@ public class GemfileLockParser extends FileParser {
         super(externalIdFactory);
     }
 
-    public DependencyGraph parseProjectDependencies(final List<String> gemfileLockLines) {
+    @Override
+    public DependencyGraph parse(final InputStream inputStream) {
         lazyBuilder = new LazyExternalIdDependencyGraphBuilder();
         currentParent = null;
 
-        for (final String line : gemfileLockLines) {
-            final String trimmedLine = StringUtils.trimToEmpty(line);
+        try {
+            final String contents = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+            final String[] lines = contents.split("\n");
 
-            if (StringUtils.isBlank(trimmedLine)) {
-                currentSection = NONE;
-            } else if (SPECS_HEADER.equals(trimmedLine)) {
-                currentSection = SPECS;
-            } else if (DEPENDENCIES_HEADER.equals(trimmedLine)) {
-                currentSection = DEPENDENCIES;
-            } else if (BUNDLED_WITH_HEADER.equals(trimmedLine)) {
-                currentSection = BUNDLED_WITH;
-            } else if (BUNDLED_WITH.equals(currentSection)) {
-                addBundlerDependency(trimmedLine);
-            } else if (SPECS.equals(currentSection)) {
-                parseSpecsSectionLine(line);
-            } else if (DEPENDENCIES.equals(currentSection)) {
-                parseDependencySectionLine(trimmedLine);
+            for (final String line : lines) {
+                final String trimmedLine = StringUtils.trimToEmpty(line);
+
+                if (StringUtils.isBlank(trimmedLine)) {
+                    currentSection = NONE;
+                } else if (SPECS_HEADER.equals(trimmedLine)) {
+                    currentSection = SPECS;
+                } else if (DEPENDENCIES_HEADER.equals(trimmedLine)) {
+                    currentSection = DEPENDENCIES;
+                } else if (BUNDLED_WITH_HEADER.equals(trimmedLine)) {
+                    currentSection = BUNDLED_WITH;
+                } else if (BUNDLED_WITH.equals(currentSection)) {
+                    addBundlerDependency(trimmedLine);
+                } else if (SPECS.equals(currentSection)) {
+                    parseSpecsSectionUntrimmedLine(line);
+                } else if (DEPENDENCIES.equals(currentSection)) {
+                    parseDependencySectionLine(trimmedLine);
+                }
             }
+        } catch (final IOException e) {
+            logger.error("Could not get the gemfile contents: " + e.getMessage());
         }
 
         return lazyBuilder.build();
@@ -106,7 +111,7 @@ public class GemfileLockParser extends FileParser {
         lazyBuilder.setDependencyInfo(bundlerId, name, version, externalId);
     }
 
-    private void parseSpecsSectionLine(final String untrimmedLine) {
+    private void parseSpecsSectionUntrimmedLine(final String untrimmedLine) {
         if (untrimmedLine.startsWith(SPEC_RELATIONSHIP_PREFIX)) {
             parseSpecRelationshipLine(untrimmedLine.trim());
         } else if (untrimmedLine.startsWith(SPEC_PACKAGE_PREFIX)) {

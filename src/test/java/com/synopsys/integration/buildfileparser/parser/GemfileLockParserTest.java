@@ -4,8 +4,6 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
@@ -28,9 +26,7 @@ public class GemfileLockParserTest {
 
         final GemfileLockParser gemfileLockParser = new GemfileLockParser(new ExternalIdFactory());
 
-        final String text = IOUtils.toString(getClass().getResourceAsStream("/small_gemfile_lock"), StandardCharsets.UTF_8);
-        final List<String> gemfileLockContents = Arrays.asList(text.split("\n"));
-        final DependencyGraph dependencyGraph = gemfileLockParser.parseProjectDependencies(gemfileLockContents);
+        final DependencyGraph dependencyGraph = gemfileLockParser.parse(getClass().getResourceAsStream("/small_gemfile_lock"));
         final GraphSummary actual = dependencyGraphSummarizer.fromGraph(dependencyGraph);
 
         assertTrue(dependencyGraphComparer.areEqual(expected, actual));
@@ -43,9 +39,7 @@ public class GemfileLockParserTest {
 
         final GemfileLockParser gemfileLockParser = new GemfileLockParser(new ExternalIdFactory());
 
-        final String text = IOUtils.toString(getClass().getResourceAsStream("/Gemfile.lock"), StandardCharsets.UTF_8);
-        final List<String> gemfileLockContents = Arrays.asList(text.split("\n"));
-        final DependencyGraph dependencyGraph = gemfileLockParser.parseProjectDependencies(gemfileLockContents);
+        final DependencyGraph dependencyGraph = gemfileLockParser.parse(getClass().getResourceAsStream("/Gemfile.lock"));
         final GraphSummary actual = dependencyGraphSummarizer.fromGraph(dependencyGraph);
 
         assertTrue(dependencyGraphComparer.areEqual(expected, actual));

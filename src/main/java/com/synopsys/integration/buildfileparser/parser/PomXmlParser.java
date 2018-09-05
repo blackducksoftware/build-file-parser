@@ -31,13 +31,19 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import com.synopsys.integration.hub.bdio.graph.DependencyGraph;
+import com.synopsys.integration.hub.bdio.graph.MutableDependencyGraph;
+import com.synopsys.integration.hub.bdio.graph.MutableMapDependencyGraph;
 import com.synopsys.integration.hub.bdio.model.dependency.Dependency;
 import com.synopsys.integration.hub.bdio.model.externalid.ExternalIdFactory;
 
 public class PomXmlParser extends FileParser {
+    private final Logger logger = LoggerFactory.getLogger(PomXmlParser.class);
+
     private final SAXParser saxParser;
     private final PomDependenciesHandler pomDependenciesHandler;
 
@@ -49,16 +55,18 @@ public class PomXmlParser extends FileParser {
 
     @Override
     public DependencyGraph parse(final InputStream inputStream) {
+        final MutableDependencyGraph dependencyGraph = new MutableMapDependencyGraph();
+
         try {
             saxParser.parse(inputStream, pomDependenciesHandler);
             final List<Dependency> dependencies = pomDependenciesHandler.getDependencies();
-            for (final Dependency dependency : dependencies) {
-                System.out.println(dependency.toString());
-            }
+
+            dependencyGraph.addChildrenToRoot(dependencies);
         } catch (IOException | SAXException e) {
-            e.printStackTrace();
+            logger.error("Could not parse the pom file: " + e.getMessage());
         }
-        return null;
+
+        return dependencyGraph;
     }
 
 }

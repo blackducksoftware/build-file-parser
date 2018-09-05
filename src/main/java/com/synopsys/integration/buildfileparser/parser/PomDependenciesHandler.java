@@ -56,9 +56,7 @@ public class PomDependenciesHandler extends DefaultHandler {
     @Override
     public void startElement(final String uri, final String localName, final String qName, final Attributes attributes) throws SAXException {
         super.startElement(uri, localName, qName, attributes);
-        System.out.println(qName);
         if ("dependencies".equals(qName)) {
-            System.out.println("parsing deps");
             parsingDependencies = true;
         } else if ("dependency".equals(qName)) {
             parsingDependency = true;
@@ -75,7 +73,6 @@ public class PomDependenciesHandler extends DefaultHandler {
     public void endElement(final String uri, final String localName, final String qName) throws SAXException {
         super.endElement(uri, localName, qName);
         if ("dependencies".equals(qName)) {
-            System.out.println("DONE parsing deps");
             parsingDependencies = false;
         } else if ("dependency".equals(qName)) {
             parsingDependency = false;
@@ -97,11 +94,6 @@ public class PomDependenciesHandler extends DefaultHandler {
         } else if (parsingVersion) {
             version = new String(ch, start, length);
         }
-    }
-
-    @Override
-    public void endDocument() throws SAXException {
-        super.endDocument();
     }
 
     public List<Dependency> getDependencies() {
@@ -128,4 +120,5 @@ public class PomDependenciesHandler extends DefaultHandler {
         parsingNothingImportant();
         parsingVersion = true;
     }
+
 }
