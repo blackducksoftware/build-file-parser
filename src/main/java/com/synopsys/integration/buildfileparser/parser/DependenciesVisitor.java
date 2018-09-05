@@ -23,6 +23,8 @@
  */
 package com.synopsys.integration.buildfileparser.parser;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,12 +40,16 @@ import org.codehaus.groovy.ast.stmt.BlockStatement;
 import org.codehaus.groovy.ast.stmt.ExpressionStatement;
 import org.codehaus.groovy.ast.stmt.ReturnStatement;
 import org.codehaus.groovy.ast.stmt.Statement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.synopsys.integration.hub.bdio.model.dependency.Dependency;
 import com.synopsys.integration.hub.bdio.model.externalid.ExternalId;
 import com.synopsys.integration.hub.bdio.model.externalid.ExternalIdFactory;
 
 public class DependenciesVisitor extends CodeVisitorSupport {
+    private final Logger logger = LoggerFactory.getLogger(DependenciesVisitor.class);
+
     private final ExternalIdFactory externalIdFactory;
     private final List<Dependency> dependencies = new ArrayList<>();
 
@@ -76,15 +82,7 @@ public class DependenciesVisitor extends CodeVisitorSupport {
                     final BlockStatement blockStatement = (BlockStatement) closureExpression.getCode();
                     final List<Statement> statements = blockStatement.getStatements();
                     for (final Statement statement : statements) {
-                        if (statement instanceof ExpressionStatement) {
-                            final ExpressionStatement expressionStatement = (ExpressionStatement) statement;
-                            final Expression expression = expressionStatement.getExpression();
-                            addDependencyFromExpression(expression);
-                        } else if (statement instanceof ReturnStatement) {
-                            final ReturnStatement returnStatement = (ReturnStatement) statement;
-                            final Expression expression = returnStatement.getExpression();
-                            addDependencyFromExpression(expression);
-                        }
+                        addDependencyFromStatement(statement);
                     }
                 }
             } else if (expressions.size() == 1 && expressions.get(0) instanceof ConstantExpression) {
@@ -96,7 +94,20 @@ public class DependenciesVisitor extends CodeVisitorSupport {
         super.visitArgumentlistExpression(argumentListExpression);
     }
 
-    private void addDependencyFromExpression(final Expression expression) {
+    private void addDependencyFromStatement(final Statement statement) {
+        Expression expression = null;
+        try {
+            Method getExpression = null;
+            if (statement instanceof ExpressionStatement) {
+                getExpression = ExpressionStatement.class.getMethod("getExpression");
+            } else if (statement instanceof ReturnStatement) {
+                getExpression = ReturnStatement.class.getMethod("getExpression");
+            }
+            expression = (Expression) getExpression.invoke(statement);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            logger.error("ExpressionStatement/ReturnStatement no longer have a 'getExpression' method: " + e.getMessage());
+        }
+
         if (expression instanceof MethodCallExpression) {
             final MethodCallExpression methodCallExpression = (MethodCallExpression) expression;
             final Expression argumentsExpression = methodCallExpression.getArguments();
