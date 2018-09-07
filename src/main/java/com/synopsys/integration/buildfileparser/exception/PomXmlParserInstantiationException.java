@@ -25,9 +25,9 @@ package com.synopsys.integration.buildfileparser.exception;
 
 import com.synopsys.integration.exception.IntegrationException;
 
-public class BuildFileContextNotFoundException extends IntegrationException {
-    public BuildFileContextNotFoundException(final String filename) {
-        super(String.format("A BuildFileContext could not be determined from: %s", filename));
+public class PomXmlParserInstantiationException extends IntegrationException {
+    public PomXmlParserInstantiationException(final Exception e) {
+        super("The PomXmlParser could not be instantiated: " + e.getMessage(), e);
     }
 
 }

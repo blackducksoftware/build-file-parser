@@ -24,21 +24,51 @@
 package com.synopsys.integration.buildfileparser;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
+import com.google.gson.Gson;
 import com.synopsys.integration.buildfileparser.exception.BuildFileContextNotFoundException;
+import com.synopsys.integration.buildfileparser.exception.PomXmlParserInstantiationException;
+import com.synopsys.integration.buildfileparser.parser.FileParser;
+import com.synopsys.integration.buildfileparser.parser.gradle.BuildGradleParser;
+import com.synopsys.integration.buildfileparser.parser.maven.PomXmlParser;
+import com.synopsys.integration.buildfileparser.parser.npm.PackageLockJsonParser;
+import com.synopsys.integration.buildfileparser.parser.rubygems.GemfileLockParser;
+import com.synopsys.integration.hub.bdio.model.externalid.ExternalIdFactory;
 
 public class BuildFileParser {
-    public ParseResult parseInputStream(final InputStream inputStream, final BuildFileContext buildFileContext) {
-        // TODO
-        return null;
+    private final Map<BuildFileContext, FileParser> fileParsers = new HashMap<>();
+
+    public static BuildFileParser createDefault() throws PomXmlParserInstantiationException {
+        return new BuildFileParser(new ExternalIdFactory(), new Gson(), true);
     }
 
-    public ParseResult parseFile(final File file) throws BuildFileContextNotFoundException {
+    public BuildFileParser(final ExternalIdFactory externalIdFactory, final Gson gson, final boolean includePackageLockJsonDevDependencies) throws PomXmlParserInstantiationException {
+        final FileParser buildGradleParser = new BuildGradleParser(externalIdFactory);
+        final FileParser pomXmlParser = new PomXmlParser(externalIdFactory);
+        final FileParser packageLockJsonParser = new PackageLockJsonParser(externalIdFactory, gson, includePackageLockJsonDevDependencies);
+        final FileParser gemfileLockParser = new GemfileLockParser(externalIdFactory);
+
+        fileParsers.put(BuildFileContext.GRADLE, buildGradleParser);
+        fileParsers.put(BuildFileContext.MAVEN, pomXmlParser);
+        fileParsers.put(BuildFileContext.NPM, packageLockJsonParser);
+        fileParsers.put(BuildFileContext.RUBYGEMS, gemfileLockParser);
+    }
+
+    public ParseResult parseInputStream(final InputStream inputStream, final BuildFileContext buildFileContext) {
+        final FileParser fileParser = fileParsers.get(buildFileContext);
+        return fileParser.parse(inputStream);
+    }
+
+    public ParseResult parseFile(final File file) throws BuildFileContextNotFoundException, FileNotFoundException {
+        final InputStream inputStream = new FileInputStream(file);
         final BuildFileContext buildFileContext = BuildFileContext.determineContextFromFilename(file.getName());
 
-        // TODO
-        return null;
+        return parseInputStream(inputStream, buildFileContext);
     }
 
 }

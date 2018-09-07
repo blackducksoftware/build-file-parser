@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import com.synopsys.integration.buildfileparser.ParseResult;
+import com.synopsys.integration.buildfileparser.exception.PomXmlParserInstantiationException;
 import com.synopsys.integration.buildfileparser.parser.FileParser;
 import com.synopsys.integration.hub.bdio.graph.MutableDependencyGraph;
 import com.synopsys.integration.hub.bdio.graph.MutableMapDependencyGraph;
@@ -48,9 +49,13 @@ public class PomXmlParser extends FileParser {
     private final SAXParser saxParser;
     private final PomDependenciesHandler pomDependenciesHandler;
 
-    public PomXmlParser(final ExternalIdFactory externalIdFactory) throws ParserConfigurationException, SAXException {
+    public PomXmlParser(final ExternalIdFactory externalIdFactory) throws PomXmlParserInstantiationException {
         super(externalIdFactory);
-        saxParser = SAXParserFactory.newInstance().newSAXParser();
+        try {
+            saxParser = SAXParserFactory.newInstance().newSAXParser();
+        } catch (ParserConfigurationException | SAXException e) {
+            throw new PomXmlParserInstantiationException(e);
+        }
         pomDependenciesHandler = new PomDependenciesHandler(externalIdFactory);
     }
 

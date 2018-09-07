@@ -34,20 +34,26 @@ public class ParseResult {
     private final DependencyGraph dependencyGraph;
 
     public static ParseResult success(final NameVersion nameVersion, final DependencyGraph dependencyGraph) {
-        return new ParseResult(true, Optional.ofNullable(nameVersion), dependencyGraph);
+        return new ParseResult(true, nameVersion, dependencyGraph);
     }
 
     public static ParseResult success(final DependencyGraph dependencyGraph) {
-        return new ParseResult(true, Optional.empty(), dependencyGraph);
+        return new ParseResult(true, dependencyGraph);
     }
 
     public static ParseResult failure() {
-        return new ParseResult(false, Optional.empty(), null);
+        return new ParseResult(false, null);
     }
 
-    public ParseResult(final boolean success, final Optional<NameVersion> nameVersion, final DependencyGraph dependencyGraph) {
+    public ParseResult(final boolean success, final NameVersion nameVersion, final DependencyGraph dependencyGraph) {
         this.success = success;
-        this.nameVersion = nameVersion;
+        this.nameVersion = Optional.of(nameVersion);
+        this.dependencyGraph = dependencyGraph;
+    }
+
+    public ParseResult(final boolean success, final DependencyGraph dependencyGraph) {
+        this.success = success;
+        nameVersion = Optional.empty();
         this.dependencyGraph = dependencyGraph;
     }
 
