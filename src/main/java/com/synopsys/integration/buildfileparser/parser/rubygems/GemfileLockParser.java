@@ -35,6 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.synopsys.integration.buildfileparser.BuildFileContext;
 import com.synopsys.integration.buildfileparser.ParseResult;
 import com.synopsys.integration.buildfileparser.parser.FileParser;
 import com.synopsys.integration.hub.bdio.graph.DependencyGraph;
@@ -68,6 +69,11 @@ public class GemfileLockParser extends FileParser {
 
     public GemfileLockParser(final ExternalIdFactory externalIdFactory) {
         super(externalIdFactory);
+    }
+
+    @Override
+    public BuildFileContext getBuildFileContext() {
+        return BuildFileContext.GEMFILE_LOCK;
     }
 
     @Override

@@ -34,6 +34,7 @@ import org.codehaus.groovy.ast.builder.AstBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.synopsys.integration.buildfileparser.BuildFileContext;
 import com.synopsys.integration.buildfileparser.ParseResult;
 import com.synopsys.integration.buildfileparser.parser.FileParser;
 import com.synopsys.integration.hub.bdio.graph.MutableDependencyGraph;
@@ -46,6 +47,11 @@ public class BuildGradleParser extends FileParser {
 
     public BuildGradleParser(final ExternalIdFactory externalIdFactory) {
         super(externalIdFactory);
+    }
+
+    @Override
+    public BuildFileContext getBuildFileContext() {
+        return BuildFileContext.BUILD_GRADLE;
     }
 
     @Override

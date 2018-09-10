@@ -23,26 +23,45 @@
  */
 package com.synopsys.integration.buildfileparser;
 
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import com.synopsys.integration.buildfileparser.exception.BuildFileContextNotFoundException;
 
 public enum BuildFileContext {
-    GRADLE,
-    MAVEN,
-    NPM,
-    RUBYGEMS;
+    BUILD_GRADLE("build.gradle"),
+    GEMFILE_LOCK("Gemfile.lock"),
+    PACKAGE_LOCK_JSON("package-lock.json"),
+    POM_XML("pom.xml");
+
+    private static final Map<String, BuildFileContext> FILENAMES_TO_CONTEXTS = new HashMap<>();
+
+    private final String filename;
+
+    BuildFileContext(final String filename) {
+        this.filename = filename;
+    }
+
+    static {
+        EnumSet.allOf(BuildFileContext.class)
+                .stream()
+                .forEach(buildFileContext -> {
+                    FILENAMES_TO_CONTEXTS.put(buildFileContext.filename, buildFileContext);
+                });
+    }
 
     public static BuildFileContext determineContextFromFilename(final String filename) throws BuildFileContextNotFoundException {
-        if ("build.gradle".equalsIgnoreCase(filename)) {
-            return GRADLE;
-        } else if ("pom.xml".equalsIgnoreCase(filename)) {
-            return MAVEN;
-        } else if ("package-lock.json".equalsIgnoreCase(filename)) {
-            return NPM;
-        } else if ("Gemfile.lock".equalsIgnoreCase(filename)) {
-            return RUBYGEMS;
+        if (!FILENAMES_TO_CONTEXTS.containsKey(filename)) {
+            throw new BuildFileContextNotFoundException(filename);
         }
 
-        throw new BuildFileContextNotFoundException(filename);
+        return FILENAMES_TO_CONTEXTS.get(filename);
+    }
+
+    public static Set<String> getSupportedFilenames() {
+        return FILENAMES_TO_CONTEXTS.keySet();
     }
 
 }

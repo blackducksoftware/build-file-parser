@@ -53,10 +53,10 @@ public class BuildFileParser {
         final FileParser packageLockJsonParser = new PackageLockJsonParser(externalIdFactory, gson, includePackageLockJsonDevDependencies);
         final FileParser gemfileLockParser = new GemfileLockParser(externalIdFactory);
 
-        fileParsers.put(BuildFileContext.GRADLE, buildGradleParser);
-        fileParsers.put(BuildFileContext.MAVEN, pomXmlParser);
-        fileParsers.put(BuildFileContext.NPM, packageLockJsonParser);
-        fileParsers.put(BuildFileContext.RUBYGEMS, gemfileLockParser);
+        fileParsers.put(buildGradleParser.getBuildFileContext(), buildGradleParser);
+        fileParsers.put(pomXmlParser.getBuildFileContext(), pomXmlParser);
+        fileParsers.put(packageLockJsonParser.getBuildFileContext(), packageLockJsonParser);
+        fileParsers.put(gemfileLockParser.getBuildFileContext(), gemfileLockParser);
     }
 
     public ParseResult parseInputStream(final InputStream inputStream, final BuildFileContext buildFileContext) {

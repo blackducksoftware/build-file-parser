@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
+import com.synopsys.integration.buildfileparser.BuildFileContext;
 import com.synopsys.integration.buildfileparser.ParseResult;
 import com.synopsys.integration.buildfileparser.parser.FileParser;
 import com.synopsys.integration.hub.bdio.graph.DependencyGraph;
@@ -55,6 +56,11 @@ public class PackageLockJsonParser extends FileParser {
         super(externalIdFactory);
         this.gson = gson;
         this.includeDevDependencies = includeDevDependencies;
+    }
+
+    @Override
+    public BuildFileContext getBuildFileContext() {
+        return BuildFileContext.PACKAGE_LOCK_JSON;
     }
 
     @Override

@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
+import com.synopsys.integration.buildfileparser.BuildFileContext;
 import com.synopsys.integration.buildfileparser.ParseResult;
 import com.synopsys.integration.buildfileparser.exception.PomXmlParserInstantiationException;
 import com.synopsys.integration.buildfileparser.parser.FileParser;
@@ -57,6 +58,11 @@ public class PomXmlParser extends FileParser {
             throw new PomXmlParserInstantiationException(e);
         }
         pomDependenciesHandler = new PomDependenciesHandler(externalIdFactory);
+    }
+
+    @Override
+    public BuildFileContext getBuildFileContext() {
+        return BuildFileContext.POM_XML;
     }
 
     @Override

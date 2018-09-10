@@ -1,7 +1,7 @@
 package com.synopsys.integration.buildfileparser.parser;
 
-import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.nio.charset.StandardCharsets;
 
@@ -11,14 +11,14 @@ import org.junit.Test;
 import com.google.gson.Gson;
 import com.synopsys.integration.buildfileparser.parser.rubygems.GemfileLockParser;
 import com.synopsys.integration.hub.bdio.graph.DependencyGraph;
-import com.synopsys.integration.hub.bdio.graph.summary.DependencyGraphComparer;
 import com.synopsys.integration.hub.bdio.graph.summary.DependencyGraphSummarizer;
+import com.synopsys.integration.hub.bdio.graph.summary.DependencyGraphSummaryComparer;
 import com.synopsys.integration.hub.bdio.graph.summary.GraphSummary;
 import com.synopsys.integration.hub.bdio.model.externalid.ExternalIdFactory;
 
 public class GemfileLockParserTest {
     private final DependencyGraphSummarizer dependencyGraphSummarizer = new DependencyGraphSummarizer(new Gson());
-    private final DependencyGraphComparer dependencyGraphComparer = new DependencyGraphComparer(dependencyGraphSummarizer);
+    private final DependencyGraphSummaryComparer dependencyGraphComparer = new DependencyGraphSummaryComparer(dependencyGraphSummarizer);
 
     @Test
     public void testParsingSmallGemfileLock() throws Exception {
